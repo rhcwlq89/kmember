@@ -1,4 +1,4 @@
-package com.example.kmember
+package com.example.kmember.controller
 
 import com.example.kmember.SignUpRequest
 import com.example.kmember.SignupService

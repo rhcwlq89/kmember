@@ -1,5 +1,6 @@
 package com.example.kmember
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -36,10 +37,16 @@ class SignupService(
 }
 
 @Service
-class LoginService(val memberRepository: MemberRepository, val memberRoleRepository: MemberRoleRepository,
-                    val roleRepository: RoleRepository) {
-    fun login() {
-        println("Login")
+class LoginService(
+    val memberRepository: MemberRepository, val memberRoleRepository: MemberRoleRepository,
+    val roleRepository: RoleRepository,
+    val authenticationManagerBuilder: AuthenticationManagerBuilder,
+    val jwtProvider: JwtProvider
+) {
+    fun login(loginRequest: LoginRequest): MemberToken? {
+        val token = UsernamePasswordAuthenticationToken(loginRequest.memberId, loginRequest.password)
+        val authenticate = authenticationManagerBuilder.`object`?.authenticate(token)
+        return jwtProvider.generateTokens(authenticate!!)
     }
 }
 
@@ -47,12 +54,11 @@ class LoginService(val memberRepository: MemberRepository, val memberRoleReposit
 class CustomUserDetailService(val memberRepository: MemberRepository) : UserDetailsService {
     override fun loadUserByUsername(username: String?): UserDetails {
         val grantedAuthority: GrantedAuthority = SimpleGrantedAuthority("ROLE_USER")
-        val arrayList = ArrayList<GrantedAuthority>()
-        arrayList.add(grantedAuthority)
+        val arrayList = listOf(grantedAuthority)
         val member = memberRepository.findByMemberId(username)?.let{
             User(it.memberId, it.password, arrayList)
-        }
+        }?: throw Exception("User not found")
 
-        return member ?: throw Exception("User not found")
+        return member
     }
 }

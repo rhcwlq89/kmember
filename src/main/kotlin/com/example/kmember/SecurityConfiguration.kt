@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfiguration(val jwtProvider: JwtProvider) {
 
-    private val PERMIT_URL_LIST = arrayOf(
+    private val permitUrl = arrayOf(
         "/sign-up", "/login", "/swagger-ui/**", "/v2/api-docs/**",
         "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**"
     )
@@ -40,7 +40,7 @@ class SecurityConfiguration(val jwtProvider: JwtProvider) {
             .httpBasic { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests()
-            .requestMatchers(*PERMIT_URL_LIST).permitAll()
+            .requestMatchers(*permitUrl).permitAll()
             .anyRequest().permitAll()
             .and()
             .addFilterBefore(
