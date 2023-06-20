@@ -1,4 +1,4 @@
-package com.example.kmember
+package com.example.kmember.configuration
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,6 +11,8 @@ import org.springframework.security.crypto.encrypt.TextEncryptor
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 @EnableWebSecurity
@@ -41,11 +43,18 @@ class SecurityConfiguration(val jwtProvider: JwtProvider) {
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests()
             .requestMatchers(*permitUrl).permitAll()
-            .anyRequest().permitAll()
+            .anyRequest().authenticated()
             .and()
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtProvider),
                 UsernamePasswordAuthenticationFilter::class.java)
             .build()
+    }
+}
+
+@Configuration
+class WebConfig : WebMvcConfigurer {
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.add(UserHandlerArgumentResolver())
     }
 }

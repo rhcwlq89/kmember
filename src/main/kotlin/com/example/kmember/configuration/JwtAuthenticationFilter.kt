@@ -1,4 +1,4 @@
-package com.example.kmember
+package com.example.kmember.configuration
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -8,14 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.util.StringUtils
 import org.springframework.web.filter.OncePerRequestFilter
 
-class JwtAuthenticationFilter(val jwtProvider: JwtProvider): OncePerRequestFilter() {
+class JwtAuthenticationFilter(private val jwtProvider: JwtProvider): OncePerRequestFilter() {
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-
         val token = request.getHeader("Authorization")
 
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
@@ -25,6 +24,8 @@ class JwtAuthenticationFilter(val jwtProvider: JwtProvider): OncePerRequestFilte
                 SecurityContextHolder.getContext().authentication = authentication
             }
         }
+
+        println(SecurityContextHolder.getContext().authentication)
 
         filterChain.doFilter(request, response)
     }

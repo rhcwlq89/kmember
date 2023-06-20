@@ -1,5 +1,6 @@
 package com.example.kmember
 
+import com.example.kmember.configuration.JwtProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.core.GrantedAuthority

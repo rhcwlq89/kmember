@@ -1,5 +1,6 @@
-package com.example.kmember
+package com.example.kmember.configuration
 
+import com.example.kmember.MemberToken
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.util.*
-import java.util.stream.Collectors
 
 @Component
 class JwtProvider {
@@ -47,7 +47,8 @@ class JwtProvider {
 
     fun getAuthentication(token: String?): Authentication? {
         val parser: JwtParser = Jwts.parserBuilder().setSigningKey(SECRET_KEY).build()
-        try {
+
+        return try {
             val claimsJws: Jws<Claims> = parser.parseClaimsJws(token)
             val claims: Claims = claimsJws.body
             if (claims["roles"] == null) {
@@ -56,9 +57,9 @@ class JwtProvider {
             val auth: List<SimpleGrantedAuthority> = claims["roles"].toString().split(",")
                 .map { role: String? -> SimpleGrantedAuthority(role) }.toList()
             val principal: UserDetails = User(claims.subject, "", auth)
-            return UsernamePasswordAuthenticationToken(principal, "", auth)
-        } catch (e: Exception) { }
-
-        return null
+            UsernamePasswordAuthenticationToken(principal, "", auth)
+        } catch (e: Exception) {
+            null
+        }
     }
 }
